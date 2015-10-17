@@ -68,7 +68,7 @@ void * smallmalloc(unsigned int size, char * file, int line) {
             p = p->succ;
         else if (p->isFree != 1)
             p = p->succ;
-        else if (p->size < (size+sizeof(memEntry)+5)) {
+        else if (p->size < (size+sizeof(memEntry)+1)) {
             p->isFree = 0;
             return (char *)p+sizeof(memEntry);
         }

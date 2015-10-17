@@ -2,11 +2,110 @@
 #include <stdlib.h>
 #include "mymalloc.h"
 
-static char myBlock[5000];
-//static char smallBlock[1000]; /*For small allocation requests*/
-//static char bigBlock[4000]; /*For large allocation requests*/
+//static char myBlock[5000];
+static char smallBlock[1000]; /*For small allocation requests*/
+static char bigBlock[4000]; /*For large allocation requests*/
 
-void * mymalloc (unsigned int size, char * file, int line) {
+void * bigmalloc(unsigned int size, char * file, int line) {
+    static int initialized = 0;
+    static memEntry * root;
+    memEntry * p, * succ;
+
+    if (!initialized) {
+        root = (memEntry *)bigBlock;
+        root->prev = root->succ = 0;
+        root->size = 4000-sizeof(memEntry);
+        root->isFree = 1;
+        initialized = 1;
+    }
+    
+    p = root;
+
+    while (p != 0) {
+        if (p->size < size)
+            p = p->succ;
+        else if (p->isFree != 1)
+            p = p->succ;
+        else if (p->size < (size+sizeof(memEntry)+20)) {
+            p->isFree = 0;
+            return (char *)p+sizeof(memEntry);
+        }
+        else {
+            succ = (memEntry *)((char *)p+sizeof(memEntry)+size);
+            succ->prev = p;
+            succ->succ = p->succ;
+            if (p->succ != 0)
+                p->succ->prev = succ;
+            p->succ = succ;
+            succ->size = p->size - sizeof(memEntry) - size;
+            succ->isFree = 1;
+            p->size = size;
+            p->isFree = 0;
+            return (char *)p+sizeof(memEntry);
+        }
+    }
+    fprintf(stderr, "Error caused by line %d in %s\n.", line, file);
+    return 0;
+}
+
+void * smallmalloc(unsigned int size, char * file, int line) {
+    static int initialized = 0;
+    static memEntry * root;
+    memEntry * p, * succ;
+
+    if (!initialized) {
+        root = (memEntry *)smallBlock;
+        root->prev = root->succ = 0;
+        root->size = 1000-sizeof(memEntry);
+        root->isFree = 1;
+        initialized = 1;
+    }
+
+    p = root;
+
+    while (p != 0) {
+        if (p->size < size)
+            p = p->succ;
+        else if (p->isFree != 1)
+            p = p->succ;
+        else if (p->size < (size+sizeof(memEntry)+5)) {
+            p->isFree = 0;
+            return (char *)p+sizeof(memEntry);
+        }
+        else {
+            succ = (memEntry *)((char *)p+sizeof(memEntry)+size);
+            succ->prev = p;
+            succ->succ = p->succ;
+            if (p->succ != 0)
+                p->succ->prev = succ;
+            p->succ = succ;
+            succ->size = p->size - sizeof(memEntry) - size;
+            succ->isFree = 1;
+            p->size = size;
+            p->isFree = 0;
+            return (char *)p+sizeof(memEntry);
+        }
+    }
+    fprintf(stderr, "Error caused by line %d in %s\n.", line, file);
+    return 0;
+}
+
+void mymalloc (unsigned int size, char * file, int line) {
+
+    if (size > 100) {
+
+        bigmalloc(size, file, line);
+
+    }
+
+    else {
+
+        smallmalloc(size, file, line);
+
+    }
+
+}
+/*void * mymalloc (unsigned int size, char * file, int line) {
     static int initialized = 0;
     static memEntry * root;
     memEntry * p, * succ;
@@ -46,7 +145,7 @@ void * mymalloc (unsigned int size, char * file, int line) {
     }
     fprintf(stderr, "Error caused by line %d in %s\n.", line, file);
     return 0;
-}
+}*/
 
 void myfree (void *p, char * file, int line) {
     memEntry *ptr, *pred, *succ;

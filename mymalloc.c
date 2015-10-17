@@ -3,6 +3,8 @@
 #include "mymalloc.h"
 
 static char myBlock[5000];
+//static char smallBlock[1000]; /*For small allocation requests*/
+//static char bigBlock[4000]; /*For large allocation requests*/
 
 void * mymalloc (unsigned int size, char * file, int line) {
     static int initialized = 0;
@@ -50,7 +52,7 @@ void myfree (void *p, char * file, int line) {
     memEntry *ptr, *pred, *succ;
     ptr = (memEntry *)((char *)p - sizeof(memEntry));
     pred = ptr->prev;
-    if (pred != 0 && pred->isFree) {
+    if (pred != 0 && pred->isFree == 1) {
         pred->size += sizeof(memEntry)+ptr->size;
         pred->succ = ptr->succ;
         if (ptr->succ != 0)

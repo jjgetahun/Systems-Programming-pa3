@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include "mymalloc.h"
 
-//static char myBlock[5000];
 static char smallBlock[1000]; /*For small allocation requests*/
 static char bigBlock[4000]; /*For large allocation requests*/
 static void* myMemList[5000]; //To keep track of malloc address locations
@@ -49,7 +48,7 @@ void * bigmalloc(unsigned int size, char * file, int line) {
         root->isFree = 1;
         initBig = 1;
     }
-    
+
     p = root;
 
     while (p != 0) {
@@ -77,7 +76,7 @@ void * bigmalloc(unsigned int size, char * file, int line) {
             return (char *)p+sizeof(memEntry);
         }
     }
-    fprintf(stderr, "No available space. Error caused by line %d in %s\n.", line, file);
+    fprintf(stderr, "No available space. Error caused by line %d in %s.\n", line, file);
     return 0;
 }
 
@@ -121,7 +120,7 @@ void * smallmalloc(unsigned int size, char * file, int line) {
             return (char *)p+sizeof(memEntry);
         }
     }
-    fprintf(stderr, "No available space. Error caused by line %d in %s\n.", line, file);
+    fprintf(stderr, "No available space. Error caused by line %d in %s.\n", line, file);
     return 0;
 }
 
@@ -141,14 +140,14 @@ void* mymalloc (unsigned int size, char * file, int line) {
 
 void myfree (void *p, char * file, int line) {
     memEntry *ptr, *pred, *succ;
-    
+
     if (p == NULL) {
-        fprintf(stderr, "Cannot free NULL pointer. Error caused by line %d in %s\n.", line, file);
+        fprintf(stderr, "Cannot free NULL pointer. Error caused by line %d in %s.\n", line, file);
         return;
     }
 
     if (!isAddrValid((void*)p)) {
-        fprintf(stderr, "Address passed was not returned from malloc() or has already been freed. Error caused by line %d in %s\n.", line, file);
+        fprintf(stderr, "Address passed was not returned from malloc() or has already been freed. Error caused by line %d in %s.\n", line, file);
         return;
     }
 
@@ -171,17 +170,15 @@ void myfree (void *p, char * file, int line) {
         if (succ->succ != 0)
             succ->succ->prev = pred;
     }
-}    
+}
 
 void chkMallocSpace() {
     int i=0;
     for (; i < 5000; i++) {
         if(myMemList[i] != NULL) {
-            fprintf(stderr,"Not all malloced space was freed");
+            fprintf(stderr,"Not all malloced space was freed.\n");
             return;
         }
     }
     return;
 }
-
-//atexit(chkMallocSpace);

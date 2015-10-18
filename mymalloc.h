@@ -4,7 +4,8 @@
 void * bigmalloc(unsigned int size, char * file, int line);
 void * smallmalloc(unsigned int size, char * file, int line);
 void * mymalloc(unsigned int size, char * file, int line);
-void  myfree (void *p, char * file, int line);
+void  myfree(void *p, char * file, int line);
+void chkMallocSpace();
 
 typedef struct mem_Entry {
 

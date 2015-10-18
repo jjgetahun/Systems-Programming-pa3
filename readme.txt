@@ -1,0 +1,5 @@
+Our program contains our implementation of malloc() and free(), as well as error checks for those functions.
+In mymalloc.c, we have a static char array, smallBlock, of size 1000, and a static char array, bigBlock, of size 4000. smallBlock is used when malloc() requests of size 100 or lower are made. bigBlock is used when malloc() requests of size 101 or greater are made. This is to prevent fragmentation, where many small blocks are allocated and freed in a way that leaves only small blocks available for allocation. We also have a static void* myMemList, of size 5000. This keeps track of malloc() address locations.
+initializeList() goes through the entire myMemList array, setting all of the values in each index to NULL.
+assignPtrSpace() takes a void* ptr as an argument, and goes through all of myMemList array, checking if the value at each index is NULL. If it is, then the value at that index is set to ptr.
+isAddrValid() takes a void* ptr as an argument, and goes through myMemList array, checking if the value at each index is ptr. If it is, then then the value at that index is set to NULL, and 1 is returned.

@@ -31,7 +31,12 @@ int main () {
     free( p );
     p = (char *)malloc( 100 );
     free( p );
-
+    
+    //Malloc space 0
+    int* z = (int*) malloc(sizeof(0));
+    free(z);
+    
+    //Setting up to check at exit of function if everythign has been freed. 
     atexit(chkMallocSpace);
 
     return 0;

@@ -10,7 +10,7 @@ static void* myMemList[5000]; //To keep track of malloc address locations
 void initalizeList() {
     int i = 0;
     for (i; i < 5000; i++) {
-        myMemList[i] == NULL;
+        myMemList[i] = NULL;
     }
     return;
 }
@@ -20,6 +20,7 @@ void assignPtrSpace(void* ptr) {
     for (i; i < 5000; i++) {
         if(myMemList[i] == NULL) {
             myMemList[i] = ptr;
+            return;
         }
     }
     return;
@@ -124,17 +125,17 @@ void * smallmalloc(unsigned int size, char * file, int line) {
     return 0;
 }
 
-void mymalloc (unsigned int size, char * file, int line) {
+void* mymalloc (unsigned int size, char * file, int line) {
     static int initList = 0;
     if (!initList) {
         initalizeList();
         initList = 1;
     }
     if (size > 100) {
-        bigmalloc(size, file, line);
+        return bigmalloc(size, file, line);
     }
     else {
-        smallmalloc(size, file, line);
+        return smallmalloc(size, file, line);
     }
 }
 /*void * mymalloc (unsigned int size, char * file, int line) {
@@ -182,20 +183,17 @@ void mymalloc (unsigned int size, char * file, int line) {
 void myfree (void *p, char * file, int line) {
     memEntry *ptr, *pred, *succ;
     
-    if (ptr == NULL) {
+    if (p == NULL) {
         fprintf(stderr, "Cannot free NULL pointer. Error caused by line %d in %s\n.", line, file);
         return;
     }
 
-    if (!isAddrValid) {
-        fprintf(stderr, "Address passed was not returned from malloc(). Error caused by line %d in %s\n.", line, file);
+    if (!isAddrValid((void*)p)) {
+        fprintf(stderr, "Address passed was not returned from malloc() or has already been freed. Error caused by line %d in %s\n.", line, file);
         return;
     }
+
     ptr = (memEntry *)((char *)p - sizeof(memEntry));
-    if (ptr -> isFree == 1) {
-        fprintf(stderr, "Address passed was already freed. Error caused by line %d in %s\n.", line, file);
-        return;
-    }
     pred = ptr->prev;
     if (pred != 0 && pred->isFree == 1) {
         pred->size += sizeof(memEntry)+ptr->size;
@@ -214,4 +212,17 @@ void myfree (void *p, char * file, int line) {
         if (succ->succ != 0)
             succ->succ->prev = pred;
     }
+}    
+
+void chkMallocSpace() {
+    int i=0;
+    for (i; i < 5000; i++) {
+        if(myMemList[i] != NULL) {
+            fprintf(stderr,"Not all malloced space was freed");
+            return;
+        }
+    }
+    return;
 }
+
+//atexit(chkMallocSpace);

@@ -6,6 +6,9 @@ mymalloc.o: mymalloc.c mymalloc.h
 main: main.c mymalloc.o
 	gcc -o main main.c mymalloc.o
 
+sat: saturate.c mymalloc.o
+	gcc -o sat saturate.c mymalloc.o
+
 clean:
 	rm -rf *.o main
 

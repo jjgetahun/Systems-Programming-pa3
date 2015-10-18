@@ -5,18 +5,48 @@
 //static char myBlock[5000];
 static char smallBlock[1000]; /*For small allocation requests*/
 static char bigBlock[4000]; /*For large allocation requests*/
+static void* myMemList[5000]; //To keep track of malloc address locations
+
+void initalizeList() {
+    int i = 0;
+    for (i; i < 5000; i++) {
+        myMemList[i] == NULL;
+    }
+    return;
+}
+
+void assignPtrSpace(void* ptr) {
+    int i = 0;
+    for (i; i < 5000; i++) {
+        if(myMemList[i] == NULL) {
+            myMemList[i] = ptr;
+        }
+    }
+    return;
+}
+
+int isAddrValid(void* ptr) {
+    int i = 0;
+    for (i; i < 5000; i++) {
+        if(myMemList[i] == ptr) {
+            myMemList[i] = NULL;
+            return 1;
+        }
+    }
+    return 0;
+}
 
 void * bigmalloc(unsigned int size, char * file, int line) {
-    static int initialized = 0;
+    static int initBig = 0;
     static memEntry * root;
     memEntry * p, * succ;
 
-    if (!initialized) {
+    if (!initBig) {
         root = (memEntry *)bigBlock;
         root->prev = root->succ = 0;
         root->size = 4000-sizeof(memEntry);
         root->isFree = 1;
-        initialized = 1;
+        initBig = 1;
     }
     
     p = root;
@@ -28,6 +58,7 @@ void * bigmalloc(unsigned int size, char * file, int line) {
             p = p->succ;
         else if (p->size < (size+sizeof(memEntry)+20)) {
             p->isFree = 0;
+            assignPtrSpace((void*) p+sizeof(memEntry));
             return (char *)p+sizeof(memEntry);
         }
         else {
@@ -41,24 +72,25 @@ void * bigmalloc(unsigned int size, char * file, int line) {
             succ->isFree = 1;
             p->size = size;
             p->isFree = 0;
+            assignPtrSpace((void*) p+sizeof(memEntry));
             return (char *)p+sizeof(memEntry);
         }
     }
-    fprintf(stderr, "Error caused by line %d in %s\n.", line, file);
+    fprintf(stderr, "No available space. Error caused by line %d in %s\n.", line, file);
     return 0;
 }
 
 void * smallmalloc(unsigned int size, char * file, int line) {
-    static int initialized = 0;
+    static int initSmall = 0;
     static memEntry * root;
     memEntry * p, * succ;
 
-    if (!initialized) {
+    if (!initSmall) {
         root = (memEntry *)smallBlock;
         root->prev = root->succ = 0;
         root->size = 1000-sizeof(memEntry);
         root->isFree = 1;
-        initialized = 1;
+        initSmall = 1;
     }
 
     p = root;
@@ -70,6 +102,7 @@ void * smallmalloc(unsigned int size, char * file, int line) {
             p = p->succ;
         else if (p->size < (size+sizeof(memEntry)+1)) {
             p->isFree = 0;
+            assignPtrSpace((void*) p+sizeof(memEntry));
             return (char *)p+sizeof(memEntry);
         }
         else {
@@ -83,27 +116,26 @@ void * smallmalloc(unsigned int size, char * file, int line) {
             succ->isFree = 1;
             p->size = size;
             p->isFree = 0;
+            assignPtrSpace((void*) p+sizeof(memEntry));
             return (char *)p+sizeof(memEntry);
         }
     }
-    fprintf(stderr, "Error caused by line %d in %s\n.", line, file);
+    fprintf(stderr, "No available space. Error caused by line %d in %s\n.", line, file);
     return 0;
 }
 
 void mymalloc (unsigned int size, char * file, int line) {
-
+    static int initList = 0;
+    if (!initList) {
+        initalizeList();
+        initList = 1;
+    }
     if (size > 100) {
-
         bigmalloc(size, file, line);
-
     }
-
     else {
-
         smallmalloc(size, file, line);
-
     }
-
 }
 /*void * mymalloc (unsigned int size, char * file, int line) {
     static int initialized = 0;
@@ -149,7 +181,21 @@ void mymalloc (unsigned int size, char * file, int line) {
 
 void myfree (void *p, char * file, int line) {
     memEntry *ptr, *pred, *succ;
+    
+    if (ptr == NULL) {
+        fprintf(stderr, "Cannot free NULL pointer. Error caused by line %d in %s\n.", line, file);
+        return;
+    }
+
+    if (!isAddrValid) {
+        fprintf(stderr, "Address passed was not returned from malloc(). Error caused by line %d in %s\n.", line, file);
+        return;
+    }
     ptr = (memEntry *)((char *)p - sizeof(memEntry));
+    if (ptr -> isFree == 1) {
+        fprintf(stderr, "Address passed was already freed. Error caused by line %d in %s\n.", line, file);
+        return;
+    }
     pred = ptr->prev;
     if (pred != 0 && pred->isFree == 1) {
         pred->size += sizeof(memEntry)+ptr->size;

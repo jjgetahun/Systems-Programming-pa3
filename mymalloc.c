@@ -6,6 +6,9 @@ static char smallBlock[1000]; /*For small allocation requests*/
 static char bigBlock[4000]; /*For large allocation requests*/
 static void* myMemList[5000]; //To keep track of malloc address locations
 
+/*
+ * Initializes the myMemList array
+ */
 void initalizeList() {
     int i = 0;
     for (; i < 5000; i++) {
@@ -14,6 +17,10 @@ void initalizeList() {
     return;
 }
 
+/*
+ * Stores the argument, which is a void* ptr, in the indexes of the
+ * myMemList array where the value is NULL
+ */
 void assignPtrSpace(void* ptr) {
     int i = 0;
     for (; i < 5000; i++) {
@@ -25,6 +32,10 @@ void assignPtrSpace(void* ptr) {
     return;
 }
 
+/*
+ * Checks if there is a void* ptr at each index of the myMemList array,
+ * setting the value of that index to NULL and returning 1, if so
+ */
 int isAddrValid(void* ptr) {
     int i = 0;
     for (; i < 5000; i++) {
@@ -36,6 +47,9 @@ int isAddrValid(void* ptr) {
     return 0;
 }
 
+/*
+ * Allocates space for requests greater than 100 bytes, if possible
+ */
 void * bigmalloc(unsigned int size, char * file, int line) {
     static int initBig = 0;
     static memEntry * root;
@@ -80,6 +94,10 @@ void * bigmalloc(unsigned int size, char * file, int line) {
     return 0;
 }
 
+/*
+ * Allocates space for requests that are 100 bytes or smaller,
+ * if possible
+ */
 void * smallmalloc(unsigned int size, char * file, int line) {
     static int initSmall = 0;
     static memEntry * root;
@@ -124,6 +142,11 @@ void * smallmalloc(unsigned int size, char * file, int line) {
     return 0;
 }
 
+/*
+ * Initializes the myMemList array if it has not already been
+ * initialized, and determines whether bigmalloc() or smallmalloc()
+ * should be called (based on the size of the request)
+ */
 void* mymalloc (unsigned int size, char * file, int line) {
     static int initList = 0;
     if (!initList) {
@@ -138,6 +161,9 @@ void* mymalloc (unsigned int size, char * file, int line) {
     }
 }
 
+/*
+ * Frees memory that has been allocated, if possible
+ */
 void myfree (void *p, char * file, int line) {
     memEntry *ptr, *pred, *succ;
 
@@ -172,6 +198,10 @@ void myfree (void *p, char * file, int line) {
     }
 }
 
+/*
+ * Checks every index of the myMemList array to see if all of
+ * the malloced space was freed
+ */
 void chkMallocSpace() {
     int i=0;
     for (; i < 5000; i++) {

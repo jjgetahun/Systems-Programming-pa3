@@ -22,4 +22,5 @@ problem.
 myfree() takes a void *p, a char * file, and an int line as arguments. If p is NULL, the program prints to stderr; a NULL pointer cannot be freed. The line that caused it and the file that it occurred in are also printed. If the address of p is not valid, the program prints to stderr; the address passed was not returned from malloc() or has already been freed. The line that caused it and the file that it occurred in are also printed. Otherwise, the chunk of memory is freed.
 
 chkMallocSpace() goes through each index of myMemList, checking if the values at each index are not NULL. If they are not, the program prints to stderr; not all malloced space was freed. This function is called by atexit() in main.c. This is so that myMemList is checked after the program exits.
+
 Our makefile contains two test programs. One is main.c which tests various memory allocation errors. The second contains a test of saturation on memory.

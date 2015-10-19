@@ -1,0 +1,30 @@
+Input: int x = 2;
+       free(&x);
+Expected output: "Address passed was not returned from malloc() or has already been freed. Error caused by line ___ in ___.c."
+
+Input: int* y = (int *) malloc(sizeof(int));
+       free(y);
+       free(y);
+Expected output: "Address passed was not returned from malloc() or has already been freed. Error caused by line ___ in ___.c."
+
+Input: char* p = (char *) malloc(200);
+       free(p+10);
+Expected output: "Address passed was not returned from malloc() or has already been freed. Error caused by line ___ in ___.c."
+
+Input: char* p = (char *) malloc(100);
+       free(p);
+       char* p = (char *) malloc(100);
+       free(p);
+Expected output: This is a valid input, so no error message is outputted.
+
+Input: int* z = (int *) malloc(sizeof(0));
+       free(z);
+Expected output: This is a valid input, so no error message is outputted.
+
+Input: int i = 0;
+       for (; i < 5000; i++) {
+           char* y = (char *) malloc(0);
+           if (y == 0)
+               break;
+       }
+Expected output: "No available space. Error caused by line ___ in ___.c."

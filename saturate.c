@@ -13,7 +13,8 @@ int main () {
             break;
     }
     
-    printf("%d\n",i);
+    printf("This program simulates saturaation using only char malloc.\n");
+    printf("Number of chars that will fit in our array: %d\n",i);
 
     //Setting up to check at exit of function if everythign has been freed. 
     atexit(chkMallocSpace);

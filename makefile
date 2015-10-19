@@ -10,5 +10,5 @@ sat: saturate.c mymalloc.o
 	gcc -o sat saturate.c mymalloc.o
 
 clean:
-	rm -rf *.o main
+	rm -rf *.o main sat
 
